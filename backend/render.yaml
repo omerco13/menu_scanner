@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: menu-scanner-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: menu-scanner-db
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+databases:
+  - name: menu-scanner-db
+    databaseName: menu_scanner
+    user: menu_scanner_user
