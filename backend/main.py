@@ -20,10 +20,20 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Menu Scanner API")
 
 # Configure CORS for local development and production
-allowed_origins = ["http://localhost:3000"]
+allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+]
+
+# Add production frontend URL from environment variable
 frontend_url = os.getenv("FRONTEND_URL")
 if frontend_url:
+    # Remove trailing slash if present
+    frontend_url = frontend_url.rstrip("/")
     allowed_origins.append(frontend_url)
+    print(f"Added CORS origin: {frontend_url}")
+
+print(f"Allowed CORS origins: {allowed_origins}")
 
 app.add_middleware(
     CORSMiddleware,
