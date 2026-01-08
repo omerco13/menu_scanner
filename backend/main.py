@@ -21,8 +21,7 @@ app = FastAPI(title="Menu Scanner API")
 
 # Configure CORS for local development and production
 allowed_origins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
+    "http://localhost:3000"
 ]
 
 # Add production frontend URL from environment variable
