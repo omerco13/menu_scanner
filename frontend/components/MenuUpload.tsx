@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { MenuUploadProps } from '@/types/menu';
 import { menuApi } from '@/lib/api';
 import { FILE_CONFIG, ERROR_MESSAGES } from '@/lib/constants';
@@ -10,6 +10,15 @@ export default function MenuUpload({ onMenuProcessed, isLoading, setIsLoading }:
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Clean up preview URL when component unmounts or preview changes
+  useEffect(() => {
+    return () => {
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -40,12 +49,9 @@ export default function MenuUpload({ onMenuProcessed, isLoading, setIsLoading }:
       setSelectedFile(file);
       setError(null);
 
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      // Create preview using URL.createObjectURL (more memory efficient)
+      const objectUrl = URL.createObjectURL(file);
+      setPreview(objectUrl);
     }
   };
 
@@ -95,11 +101,9 @@ export default function MenuUpload({ onMenuProcessed, isLoading, setIsLoading }:
       setSelectedFile(file);
       setError(null);
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      // Create preview using URL.createObjectURL (more memory efficient)
+      const objectUrl = URL.createObjectURL(file);
+      setPreview(objectUrl);
     }
   };
 
@@ -126,6 +130,10 @@ export default function MenuUpload({ onMenuProcessed, isLoading, setIsLoading }:
             <p className="text-gray-600 font-medium">{selectedFile?.name}</p>
             <button
               onClick={() => {
+                // Clean up the object URL before removing
+                if (preview) {
+                  URL.revokeObjectURL(preview);
+                }
                 setSelectedFile(null);
                 setPreview(null);
                 if (fileInputRef.current) fileInputRef.current.value = '';
